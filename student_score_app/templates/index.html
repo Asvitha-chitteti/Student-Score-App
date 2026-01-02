@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Student Score Predictor</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="card">
+      <h1>Student Score Predictor</h1>
+      <form action="/predict" method="post">
+        <label>Hours studied per day
+          <input type="number" step="0.1" name="hours" value="6.0" required>
+        </label>
+        <label>Hours of Sleep
+          <input type="number" step="0.1" name="sleep" value="6.0" required>
+        </label>
+        <label>Attendance (%) 
+          <input type="number" step="0.1" name="attendance" value="85" required>
+        </label>
+        <label>Number of Assignments completed
+          <input type="number" step="1" name="assignments" value="6" required>
+        </label>
+        <button type="submit">Predict Score</button>
+      </form>
+      <p class="note">Model evaluation on held-out test set: MAE = 1.44, R² = 0.994</p>
+      <p class="small">You can download the app and run it locally.</p>
+    </div>
+  </body>
+</html>

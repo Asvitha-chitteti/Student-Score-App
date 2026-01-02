@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="card">
+      <h1>Predicted Score</h1>
+      <p class="big">{{ prediction }} / 100</p>
+      <h3>Inputs</h3>
+      <ul>
+        {% for k,v in inputs.items() %}
+          <li><strong>{{ k }}</strong>: {{ v }}</li>
+        {% endfor %}
+      </ul>
+      <a href="/">Make another prediction</a>
+    </div>
+  </body>
+</html>
