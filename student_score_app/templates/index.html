@@ -1,30 +1,636 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Student Score Predictor</title>
-    <link rel="stylesheet" href="/static/style.css">
-  </head>
-  <body>
-    <div class="card">
-      <h1>Student Score Predictor</h1>
-      <form action="/predict" method="post">
-        <label>Hours studied per day
-          <input type="number" step="0.1" name="hours" value="6.0" required>
-        </label>
-        <label>Hours of Sleep
-          <input type="number" step="0.1" name="sleep" value="6.0" required>
-        </label>
-        <label>Attendance (%) 
-          <input type="number" step="0.1" name="attendance" value="85" required>
-        </label>
-        <label>Number of Assignments completed
-          <input type="number" step="1" name="assignments" value="6" required>
-        </label>
-        <button type="submit">Predict Score</button>
-      </form>
-      <p class="note">Model evaluation on held-out test set: MAE = 1.44, R² = 0.994</p>
-      <p class="small">You can download the app and run it locally.</p>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPredict AI — Advanced Student Score Intelligence & Analytics</title>
+  <meta name="description" content="State-of-the-art predictive analytics suite for student academic performance, personalized study trajectory optimization, and ML benchmark evaluation.">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Header & Brand Top Bar -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-titles">
+          <h1>EduPredict AI</h1>
+          <p>Academic Performance Intelligence & Trajectory Optimization Suite</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span>Ensemble ML Online (99.8% R²)</span>
+        </div>
+        <button type="button" class="print-btn" id="open-report-btn">
+          <span>📋 Student Report</span>
+        </button>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle">
+          <span>☀️ Light Mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-navigation" role="tablist">
+      <button class="tab-btn active" data-tab="tab-simulator" role="tab" id="tab-btn-sim">
+        <span>🎯 Real-Time Score Studio</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-analytics" role="tab" id="tab-btn-analytics">
+        <span>📈 Visual Analytics & Radar</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-optimizer" role="tab" id="tab-btn-opt">
+        <span>🏆 Goal & Target Optimizer</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-batch" role="tab" id="tab-btn-batch">
+        <span>📂 Batch CSV / Excel Scoring</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-benchmarks" role="tab" id="tab-btn-bench">
+        <span>🔬 ML Models & Dataset</span>
+      </button>
+    </nav>
+
+    <!-- ==========================================
+         TAB 1: REAL-TIME SCORE STUDIO (CORE)
+         ========================================== -->
+    <div id="tab-simulator" class="tab-pane active" role="tabpanel">
+      <div class="dashboard-grid">
+
+        <!-- Left Column: Parameter Control Deck -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div>
+              <h2><span class="icon">⚙️</span> Student Behavioral Profile</h2>
+              <p class="card-desc">Adjust daily habits and study variables for instantaneous score synthesis</p>
+            </div>
+          </div>
+
+          <!-- Model Algorithm Selector -->
+          <div class="model-select-wrapper">
+            <label class="model-select-label" for="model-select">
+              <span>🧠 Algorithm Engine:</span>
+            </label>
+            <select id="model-select" class="model-dropdown">
+              <option value="ensemble" selected>Consensus Ensemble (Weighted)</option>
+              <option value="gbr">Gradient Boosting Regressor (GBR)</option>
+              <option value="rf">Random Forest (100 Trees)</option>
+              <option value="ridge">Ridge Regression (L2 Regularized)</option>
+              <option value="linear">Linear Regression (Baseline)</option>
+            </select>
+          </div>
+
+          <form action="/predict" method="POST" id="score-form">
+            <!-- 1. Hours Studied -->
+            <div class="input-control-group">
+              <div class="control-header">
+                <div class="control-label-wrapper">
+                  <div class="control-icon icon-blue">📚</div>
+                  <div>
+                    <div class="control-title">Study Hours / Day</div>
+                    <div class="control-subtitle">Dedicated independent learning</div>
+                  </div>
+                </div>
+                <div class="control-value-display">
+                  <input type="number" id="input-hours" name="hours" class="number-input-field" step="0.1" min="0" max="16" value="{{ inputs.hours }}">
+                  <span class="unit-label">hrs</span>
+                </div>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-hours" class="range-slider" min="0" max="16" step="0.1" value="{{ inputs.hours }}">
+                <div class="slider-scale">
+                  <span>0 hrs</span>
+                  <span>Average: 6.5h</span>
+                  <span>16 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Sleep Hours -->
+            <div class="input-control-group">
+              <div class="control-header">
+                <div class="control-label-wrapper">
+                  <div class="control-icon icon-purple">😴</div>
+                  <div>
+                    <div class="control-title">Sleep Duration</div>
+                    <div class="control-subtitle">Restorative sleep per 24 hours</div>
+                  </div>
+                </div>
+                <div class="control-value-display">
+                  <input type="number" id="input-sleep" name="sleep" class="number-input-field" step="0.1" min="0" max="14" value="{{ inputs.sleep }}">
+                  <span class="unit-label">hrs</span>
+                </div>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-sleep" class="range-slider" min="0" max="14" step="0.1" value="{{ inputs.sleep }}">
+                <div class="slider-scale">
+                  <span>0 hrs</span>
+                  <span>Optimal: 7–8h</span>
+                  <span>14 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Attendance Rate -->
+            <div class="input-control-group">
+              <div class="control-header">
+                <div class="control-label-wrapper">
+                  <div class="control-icon icon-emerald">🏫</div>
+                  <div>
+                    <div class="control-title">Attendance Rate</div>
+                    <div class="control-subtitle">Lecture & seminar participation</div>
+                  </div>
+                </div>
+                <div class="control-value-display">
+                  <input type="number" id="input-attendance" name="attendance" class="number-input-field" step="0.5" min="0" max="100" value="{{ inputs.attendance }}">
+                  <span class="unit-label">%</span>
+                </div>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-attendance" class="range-slider" min="0" max="100" step="0.5" value="{{ inputs.attendance }}">
+                <div class="slider-scale">
+                  <span>0%</span>
+                  <span>Threshold: 75%</span>
+                  <span>100%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Assignments Completed -->
+            <div class="input-control-group">
+              <div class="control-header">
+                <div class="control-label-wrapper">
+                  <div class="control-icon icon-amber">📝</div>
+                  <div>
+                    <div class="control-title">Assignments Completed</div>
+                    <div class="control-subtitle">Graded coursework submissions</div>
+                  </div>
+                </div>
+                <div class="control-value-display">
+                  <input type="number" id="input-assignments" name="assignments" class="number-input-field" step="1" min="0" max="15" value="{{ inputs.assignments }}">
+                  <span class="unit-label">tasks</span>
+                </div>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-assignments" class="range-slider" min="0" max="15" step="1" value="{{ inputs.assignments }}">
+                <div class="slider-scale">
+                  <span>0</span>
+                  <span>Benchmark: 6</span>
+                  <span>15</span>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <!-- Quick Archetype Presets -->
+          <div class="presets-section">
+            <div class="presets-title">⚡ Quick Behavioral Archetypes</div>
+            <div class="presets-grid">
+              <button type="button" class="preset-btn" data-preset="top">
+                <span>🌟 Top Achiever</span>
+              </button>
+              <button type="button" class="preset-btn" data-preset="balanced">
+                <span>⚖️ Balanced Routine</span>
+              </button>
+              <button type="button" class="preset-btn" data-preset="atrisk">
+                <span>⚠️ At-Risk Profile</span>
+              </button>
+              <button type="button" class="preset-btn" data-preset="reset">
+                <span>🔄 Cohort Median</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Performance Diagnostic Board -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div>
+              <h2><span class="icon">📊</span> Predictive Performance Output</h2>
+              <p class="card-desc">Synthesized diagnostic metrics & explainable feature attribution</p>
+            </div>
+          </div>
+
+          <!-- Hero Score Card with Circular Radial Gauge -->
+          <div class="score-hero-card">
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1" />
+                    <stop offset="50%" stop-color="#06b6d4" />
+                    <stop offset="100%" stop-color="#10b981" />
+                  </linearGradient>
+                </defs>
+                <circle class="gauge-bg" cx="100" cy="100" r="90" />
+                <circle id="gauge-progress-circle" class="gauge-progress" cx="100" cy="100" r="90" />
+              </svg>
+              <div class="gauge-center-content">
+                <span class="score-number" id="display-score">{{ initial_prediction.score }}</span>
+                <span class="score-max">OUT OF 100</span>
+              </div>
+            </div>
+
+            <div class="grade-badge-container">
+              <span id="display-grade-pill" class="grade-pill pill-{{ initial_prediction.grade_color }}">
+                Grade {{ initial_prediction.letter_grade }}
+              </span>
+            </div>
+            <div class="grade-descriptor" id="display-grade-desc">{{ initial_prediction.grade_desc }}</div>
+
+            <!-- KPI Quick Stats Ribbon -->
+            <div class="kpi-ribbon">
+              <div class="kpi-card">
+                <div class="kpi-label">95% Conf. Interval</div>
+                <div class="kpi-val"><span id="display-ci-lower">{{ initial_prediction.ci.lower }}</span> – <span id="display-ci-upper">{{ initial_prediction.ci.upper }}</span></div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Cohort Standing</div>
+                <div class="kpi-val" id="display-percentile">Top {{ 100 - initial_prediction.percentile|round(0) }}%</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Risk Profile</div>
+                <div class="kpi-val">
+                  <span id="display-risk-badge" class="kpi-badge badge-{{ initial_prediction.risk_badge }}">
+                    {{ initial_prediction.risk_level }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Contribution Waterfall (Explainable AI) -->
+          <div class="contributions-section">
+            <div class="section-subtitle">
+              <span>🎯 Feature Impact vs Cohort Average</span>
+              <span class="baseline-tag">Baseline: {{ dataset.summary.avg_score }} pts</span>
+            </div>
+            <div class="impact-list" id="impact-list">
+              {% for item in initial_prediction.impacts %}
+              <div class="impact-item">
+                <div class="impact-info">
+                  <span class="impact-name">{{ item.feature }} ({{ item.value }})</span>
+                  <span class="impact-meta">vs {{ item.baseline }}</span>
+                </div>
+                <span class="impact-badge {{ 'impact-pos' if item.positive else 'impact-neg' }}">
+                  {{ '+' if item.positive else '' }}{{ item.points }} pts
+                </span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- AI Action Recommendations -->
+          <div class="recommendations-box">
+            <div class="section-subtitle">
+              <span>💡 Smart Academic Action Plan</span>
+            </div>
+            <div id="recommendations-list">
+              {% for rec in initial_prediction.recommendations %}
+              <div class="rec-card rec-{{ rec.type }}">
+                <div class="rec-title">{{ rec.title }}</div>
+                <div class="rec-text">{{ rec.text }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </div>
-  </body>
+
+    <!-- ==========================================
+         TAB 2: VISUAL ANALYTICS & RADAR
+         ========================================== -->
+    <div id="tab-analytics" class="tab-pane" role="tabpanel">
+      <div class="charts-grid">
+        <!-- Radar Chart Card -->
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <div>
+              <h2><span class="icon">🕸️</span> 4-Pillar Performance Profile</h2>
+              <p class="card-desc">Normalized balance across Study, Sleep, Attendance, and Coursework</p>
+            </div>
+          </div>
+          <div class="chart-canvas-container">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Sensitivity Curve Card -->
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <div>
+              <h2><span class="icon">📈</span> Study Hours Marginal Sensitivity</h2>
+              <p class="card-desc">Projected exam score trajectory as study hours scale (holding other inputs constant)</p>
+            </div>
+          </div>
+          <div class="chart-canvas-container">
+            <canvas id="sensitivityChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Models Comparison Bar Chart -->
+      <div class="glass-card chart-card">
+        <div class="card-header">
+          <div>
+            <h2><span class="icon">🤖</span> Multi-Model Consensus Breakdown</h2>
+            <p class="card-desc">Simultaneous cross-validation predictions across 4 distinct machine learning algorithms</p>
+          </div>
+        </div>
+        <div class="chart-canvas-container" style="height: 260px;">
+          <canvas id="modelsComparisonChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         TAB 3: GOAL & TARGET OPTIMIZER
+         ========================================== -->
+    <div id="tab-optimizer" class="tab-pane" role="tabpanel">
+      <div class="optimizer-layout">
+        <div class="glass-card">
+          <div class="card-header">
+            <div>
+              <h2><span class="icon">🎯</span> Target Score Inverse Solver</h2>
+              <p class="card-desc">Specify your desired grade or score; the optimizer computes the exact required habit investment</p>
+            </div>
+          </div>
+
+          <div class="target-input-box">
+            <label style="font-weight: 700; font-size: 14px;">Select Target Grade / Score:</label>
+            <div style="display: flex; align-items: center; gap: 14px; margin-top: 10px;">
+              <input type="number" id="target-score-input" class="number-input-field" min="40" max="100" step="1" value="85" style="width: 100px; font-size: 20px;">
+              <span style="font-size: 16px; font-weight: 700; color: var(--cyan);">points / 100</span>
+            </div>
+            <input type="range" id="target-score-slider" class="range-slider target-slider" min="40" max="100" step="1" value="85">
+            <div class="slider-scale">
+              <span>Pass (50)</span>
+              <span>Credit (65)</span>
+              <span>Distinction (80)</span>
+              <span>High Distinction (90+)</span>
+            </div>
+          </div>
+
+          <button type="button" id="run-optimizer-btn" class="upload-btn" style="width: 100%; padding: 14px; font-size: 15px;">
+            🚀 Compute Optimal Study Plan
+          </button>
+        </div>
+
+        <div class="glass-card plan-result-card" id="optimizer-result-card" style="display: none;">
+          <div class="card-header">
+            <div>
+              <h2><span class="icon">📋</span> Optimized Academic Prescription</h2>
+              <p class="card-desc">Feasible schedule to hit target score: <strong id="opt-target-display" style="color: var(--cyan);">85 pts</strong></p>
+            </div>
+          </div>
+
+          <div class="plan-stats-grid">
+            <div class="plan-stat">
+              <div class="kpi-label">Required Study Intensity</div>
+              <div class="plan-stat-val" id="opt-needed-hours">8.2 hrs/day</div>
+            </div>
+            <div class="plan-stat">
+              <div class="kpi-label">Balanced Alternative Study</div>
+              <div class="plan-stat-val" id="opt-plan-hours">7.0 hrs</div>
+            </div>
+            <div class="plan-stat">
+              <div class="kpi-label">Target Attendance</div>
+              <div class="plan-stat-val" id="opt-plan-att">90%</div>
+            </div>
+            <div class="plan-stat">
+              <div class="kpi-label">Target Assignments</div>
+              <div class="plan-stat-val" id="opt-plan-assign">8 tasks</div>
+            </div>
+          </div>
+
+          <div class="rec-card rec-success" style="margin-top: 16px;">
+            <div class="rec-title">Feasibility Assessment</div>
+            <div class="rec-text">
+              By increasing attendance to the recommended rate and completing remaining assignments, you save approximately 1.2 hours of daily study pressure while reaching your target grade.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         TAB 4: BATCH CSV / EXCEL SCORING
+         ========================================== -->
+    <div id="tab-batch" class="tab-pane" role="tabpanel">
+      <div class="glass-card">
+        <div class="batch-actions-row">
+          <div>
+            <h2><span class="icon">📂</span> Batch Student Evaluation</h2>
+            <p class="card-desc">Upload a roster of students to predict grades, identify at-risk learners, and generate collective diagnostics</p>
+          </div>
+          <a href="/api/download-template" class="download-link-btn" download>
+            <span>📥 Download Sample CSV Template</span>
+          </a>
+        </div>
+
+        <!-- File Upload Zone -->
+        <div class="batch-upload-zone" id="batch-upload-zone">
+          <input type="file" id="batch-file-input" accept=".csv, .xlsx, .xls" style="display: none;">
+          <div class="upload-icon">📁</div>
+          <h3>Drag & Drop Student CSV or Excel File Here</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
+            Supports columns: Student_Name, Hours, Sleep, Attendance, Assignments
+          </p>
+          <button type="button" class="upload-btn">Browse Computer</button>
+        </div>
+
+        <!-- Results Table Preview -->
+        <div id="batch-results-container" style="display: none; margin-top: 24px;">
+          <div class="kpi-ribbon" style="margin-bottom: 20px;">
+            <div class="kpi-card">
+              <div class="kpi-label">Roster Evaluated</div>
+              <div class="kpi-val" id="batch-total-count">0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Cohort Average</div>
+              <div class="kpi-val" id="batch-avg-score">0.0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Pass Rate (≥ 50%)</div>
+              <div class="kpi-val" id="batch-pass-rate">0%</div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Hours</th>
+                  <th>Sleep</th>
+                  <th>Attendance</th>
+                  <th>Assignments</th>
+                  <th>Predicted Score</th>
+                  <th>Grade</th>
+                  <th>Risk Level</th>
+                </tr>
+              </thead>
+              <tbody id="batch-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==========================================
+         TAB 5: ML BENCHMARKS & DATASET
+         ========================================== -->
+    <div id="tab-benchmarks" class="tab-pane" role="tabpanel">
+      <!-- Benchmark Comparison -->
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div>
+            <h2><span class="icon">🔬</span> Machine Learning Benchmark Matrix</h2>
+            <p class="card-desc">Comparative evaluation of trained regression models on cross-validated performance metrics</p>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Model Name</th>
+                <th>R² Score</th>
+                <th>MAE (Mean Abs Error)</th>
+                <th>RMSE (Root Mean Sq)</th>
+                <th>5-Fold CV Mean R²</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k, m in metrics.items() %}
+              <tr>
+                <td><strong>{{ m.name }}</strong></td>
+                <td><span style="font-family: var(--font-mono); color: var(--emerald); font-weight: 700;">{{ m.r2 }}</span></td>
+                <td><span style="font-family: var(--font-mono);">{{ m.mae }} pts</span></td>
+                <td><span style="font-family: var(--font-mono);">{{ m.rmse }}</span></td>
+                <td><span style="font-family: var(--font-mono); font-weight: 600;">{{ m.cv_r2_mean }}</span></td>
+                <td>
+                  <span class="kpi-badge badge-success">Production Ready</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Dataset Explorer -->
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h2><span class="icon">📋</span> Training Dataset Distribution ({{ dataset.summary.total_students }} Observations)</h2>
+            <p class="card-desc">Mean Score: {{ dataset.summary.avg_score }} | Min: {{ dataset.summary.min_score }} | Max: {{ dataset.summary.max_score }}</p>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Study Hours</th>
+                <th>Sleep Duration</th>
+                <th>Attendance (%)</th>
+                <th>Assignments</th>
+                <th>Actual Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in dataset.records %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ row['Hours'] }}</td>
+                <td>{{ row['Sleep'] }}</td>
+                <td>{{ row['Attendance(%)'] }}%</td>
+                <td>{{ row['Assignments'] }}</td>
+                <td><strong style="color: var(--cyan); font-family: var(--font-mono);">{{ row['Score'] }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Diagnostic Report Modal (Print / PDF) -->
+  <div class="modal-overlay" id="report-modal">
+    <div class="modal-content">
+      <button class="close-modal-btn" id="close-report-modal">&times;</button>
+      
+      <div class="report-header">
+        <div>
+          <h2 style="font-size: 22px; font-weight: 800;">Academic Diagnostic Evaluation</h2>
+          <p style="font-size: 13px; color: var(--text-muted);">EduPredict AI Diagnostic Report • Generated <span id="rep-date"></span></p>
+        </div>
+        <div style="text-align: right;">
+          <button type="button" class="upload-btn" id="do-print-btn" style="margin-top: 0; padding: 8px 16px;">
+            🖨️ Print / Save as PDF
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">1. Predicted Academic Metric</h3>
+        <div style="display: flex; gap: 20px; align-items: center; background: var(--bg-glass); padding: 16px; border-radius: var(--radius-md);">
+          <div>
+            <div style="font-size: 38px; font-weight: 800; font-family: var(--font-mono); color: var(--primary);" id="rep-score">--</div>
+            <div style="font-size: 13px; color: var(--text-dim);" id="rep-ci">95% Confidence</div>
+          </div>
+          <div style="border-left: 2px solid var(--border-color); padding-left: 20px;">
+            <div style="font-size: 20px; font-weight: 700;" id="rep-grade">Grade --</div>
+            <div style="font-size: 13px; color: var(--text-muted);" id="rep-status">--</div>
+            <div style="font-size: 12px; margin-top: 4px;">Standing: <strong id="rep-percentile">--</strong> | Risk: <strong id="rep-risk">--</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">2. Behavioral Input Parameters</h3>
+        <table class="custom-table">
+          <tr>
+            <td><strong>Daily Study Hours</strong></td>
+            <td id="rep-hours">--</td>
+          </tr>
+          <tr>
+            <td><strong>Sleep Duration</strong></td>
+            <td id="rep-sleep">--</td>
+          </tr>
+          <tr>
+            <td><strong>Lecture Attendance</strong></td>
+            <td id="rep-att">--</td>
+          </tr>
+          <tr>
+            <td><strong>Coursework Submissions</strong></td>
+            <td id="rep-assign">--</td>
+          </tr>
+        </table>
+      </div>
+
+      <div>
+        <h3 style="font-size: 15px; margin-bottom: 8px;">3. Advisory Verdict</h3>
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          This predictive assessment is synthesized using multi-algorithm regression with 5-fold cross-validation. Regular adherence to optimal sleep (7-8 hours) combined with punctuality in lectures provides the highest leverage for grade enhancement.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
 </html>

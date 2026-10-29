@@ -1,21 +1,153 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Prediction Result</title>
-    <link rel="stylesheet" href="/static/style.css">
-  </head>
-  <body>
-    <div class="card">
-      <h1>Predicted Score</h1>
-      <p class="big">{{ prediction }} / 100</p>
-      <h3>Inputs</h3>
-      <ul>
-        {% for k,v in inputs.items() %}
-          <li><strong>{{ k }}</strong>: {{ v }}</li>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction Diagnostic Result — EduPredict AI</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container" style="max-width: 900px;">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-titles">
+          <h1>EduPredict AI</h1>
+          <p>Academic Performance Intelligence & Trajectory Optimization</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/" class="print-btn" style="text-decoration: none;">
+          <span>← Back to Simulator</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Result Card -->
+    <div class="glass-card">
+      <div class="score-hero-card">
+        <div class="gauge-wrapper">
+          <svg class="gauge-svg" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6366f1" />
+                <stop offset="50%" stop-color="#06b6d4" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <circle class="gauge-bg" cx="100" cy="100" r="90" />
+            <circle class="gauge-progress" cx="100" cy="100" r="90" style="stroke-dashoffset: {{ 565.48 - (result.score / 100 * 565.48) }};" />
+          </svg>
+          <div class="gauge-center-content">
+            <span class="score-number">{{ result.score }}</span>
+            <span class="score-max">OUT OF 100</span>
+          </div>
+        </div>
+
+        <div class="grade-badge-container">
+          <span class="grade-pill pill-{{ result.grade_color }}">
+            Grade {{ result.letter_grade }}
+          </span>
+        </div>
+        <div class="grade-descriptor">{{ result.grade_desc }}</div>
+
+        <!-- KPI Quick Stats Ribbon -->
+        <div class="kpi-ribbon">
+          <div class="kpi-card">
+            <div class="kpi-label">95% Conf. Interval</div>
+            <div class="kpi-val">{{ result.ci.lower }} – {{ result.ci.upper }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Cohort Standing</div>
+            <div class="kpi-val">Top {{ 100 - result.percentile|round(0) }}%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Risk Profile</div>
+            <div class="kpi-val">
+              <span class="kpi-badge badge-{{ result.risk_badge }}">
+                {{ result.risk_level }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Parameters Summary -->
+      <div style="margin-top: 24px;">
+        <div class="section-subtitle">
+          <span>📋 Student Input Parameters</span>
+        </div>
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Daily Study Hours</th>
+                <th>Sleep Duration</th>
+                <th>Attendance Rate</th>
+                <th>Assignments Completed</th>
+                <th>Model Used</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>{{ inputs.hours }} hrs/day</strong></td>
+                <td><strong>{{ inputs.sleep }} hrs/day</strong></td>
+                <td><strong>{{ inputs.attendance }}%</strong></td>
+                <td><strong>{{ inputs.assignments }} tasks</strong></td>
+                <td><span class="kpi-badge badge-success">{{ result.selected_model|title }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Feature Impact Breakdown -->
+      <div class="contributions-section">
+        <div class="section-subtitle">
+          <span>🎯 Feature Impact Attribution</span>
+        </div>
+        <div class="impact-list">
+          {% for item in result.impacts %}
+          <div class="impact-item">
+            <div class="impact-info">
+              <span class="impact-name">{{ item.feature }} ({{ item.value }})</span>
+              <span class="impact-meta">vs {{ item.baseline }}</span>
+            </div>
+            <span class="impact-badge {{ 'impact-pos' if item.positive else 'impact-neg' }}">
+              {{ '+' if item.positive else '' }}{{ item.points }} pts
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Smart Recommendations -->
+      <div class="recommendations-box">
+        <div class="section-subtitle">
+          <span>💡 Smart AI Action Plan</span>
+        </div>
+        {% for rec in result.recommendations %}
+        <div class="rec-card rec-{{ rec.type }}">
+          <div class="rec-title">{{ rec.title }}</div>
+          <div class="rec-text">{{ rec.text }}</div>
+        </div>
         {% endfor %}
-      </ul>
-      <a href="/">Make another prediction</a>
+      </div>
+
+      <div style="display: flex; gap: 14px; margin-top: 30px; justify-content: center;">
+        <a href="/" class="upload-btn" style="text-decoration: none; display: inline-block;">
+          ← Run Another Simulation
+        </a>
+        <button type="button" class="print-btn" onclick="window.print();" style="padding: 12px 20px;">
+          🖨️ Print Diagnostic Evaluation
+        </button>
+      </div>
+
     </div>
-  </body>
+
+  </div>
+</body>
 </html>
